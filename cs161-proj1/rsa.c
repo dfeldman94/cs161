@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #include <gmp.h>
 
@@ -187,6 +188,62 @@ void rsa_decrypt(mpz_t m, const mpz_t c, const struct rsa_key *key)
  * interval [numbits - 0.5, numbits). Calls abort if any error occurs. */
 static void generate_prime(mpz_t p, unsigned int numbits)
 {
+	if(!((numbits % 8) == 0)) {
+		printf("Error: Cannot generate prime of %d bits (must be multiple of 8)", numbits);
+		abort();
+	}
+
+	unsigned int num_bytes = numbits / 8;	
+	char *rand_array = malloc(num_bytes);
+
+	if(rand_array == NULL) {
+		printf("Unable to allocate array for prime generation\n");
+		abort();
+	}
+
+	//size_t rand_arr_len = 0;
+	//char *file_buf = malloc(num_bytes);
+
+	FILE *rand_data;
+	rand_data = fopen("/dev/random", "r");
+
+	//Setup mpz var to set
+	//mpz_t rand_num;
+	//mpz_init(rand_num);
+
+	int prime_test = 1;
+	
+
+	//int rand_data = open("/dev/random", O_RDONLY);
+	while(prime_test != 2) {
+
+
+		size_t result = fread(rand_array, 1, num_bytes, rand_data);
+
+		if(result != numbits) {
+			printf("Error: Could not read %d bits from dev/random", num_bytes);
+			abort();
+		}
+
+		*(rand_array) = *(rand_array) | 0xc0;
+
+		//Copy to mpz var
+		mpz_import(p, num_bytes, 1, sizeof(*(rand_array)), 0, 0, rand_array);
+		//Test for primality
+		prime_test = mpz_probab_prime_p(p, 25);
+	}
+
+	//Prime found, clean up
+	free(rand_array);
+	fclose(rand_data);
+	//mpz_clear(rand_num)
+
+
+
+	//*(rand_data) = *(rand_data) | 0xc0;
+
+
+
 	/* TODO */
 }
 
@@ -194,5 +251,34 @@ static void generate_prime(mpz_t p, unsigned int numbits)
  * interval [numbits - 1, numbits). Calls abort if any error occurs. */
 void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 {
+	mpz_t p, q, n, d, e;
+	mpz_init(d);
+	mpz_init(e);
+	mpz_init(n);
+	mpz_init(p);
+	mpz_init(q);
+	generate_prime(p, numbits/2);
+	generate_prime(q, numbits/2);
+
+	//Generate n as the product of p-1 and q-1
+	mpz_sub_ui(p, p, 1);
+	mpz_sub_ui(q, q, 1);
+	mpz_mul(n, p, q);
+
+	mpz_set_ui(e, 65537);
+	mpz_invert(d, e, n);
+
+	mpz_set(key->d, d);
+	mpz_set(key->e, e);
+	mpz_set(key->n, n);
+
+	mpz_clear(d);
+	mpz_clear(e);
+	mpz_clear(n);
+	mpz_clear(p);
+	mpz_clear(q);
+	//MAKE SURE NOT THE SAME??
+
+
 	/* TODO */
 }

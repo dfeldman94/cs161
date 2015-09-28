@@ -121,8 +121,15 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
 static int genkey_mode(const char *numbits_str)
 {
 	/* TODO */
-	fprintf(stderr, "genkey not yet implemented\n");
-	return 1;
+	struct rsa_key genkey;
+	rsa_key_init(&genkey);
+
+	unsigned int numbits_int = atoi(numbits_str);
+	rsa_genkey(&genkey, numbits_int);
+
+	rsa_key_write(stdout, &genkey);
+
+	return 0;
 }
 
 int main(int argc, char *argv[]) {
