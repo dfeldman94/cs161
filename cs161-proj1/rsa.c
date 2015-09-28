@@ -215,13 +215,14 @@ static void generate_prime(mpz_t p, unsigned int numbits)
 	
 
 	//int rand_data = open("/dev/random", O_RDONLY);
-	while(prime_test != 2) {
+	while(!((prime_test == 2) || (prime_test == 1))) {
 
 
 		size_t result = fread(rand_array, 1, num_bytes, rand_data);
 
-		if(result != numbits) {
+		if((int) result != (int) num_bytes) {
 			printf("Error: Could not read %d bits from dev/random", num_bytes);
+			printf("Result: %d, Numbits: %d",(int) result, numbits);
 			abort();
 		}
 
