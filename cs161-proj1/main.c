@@ -125,12 +125,16 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
  * was an error; zero otherwise. */
 static int genkey_mode(const char *numbits_str)
 {
+	//Init RSA key
 	struct rsa_key genkey;
 	rsa_key_init(&genkey);
 
-	unsigned int numbits_int = atoi(numbits_str);
-	rsa_genkey(&genkey, numbits_int);
+	//Convert numbits to ing
+	char *ptr;
+	unsigned int numbits_int = strtoul(numbits_str, &ptr, 10);
 
+	//Gen key and output
+	rsa_genkey(&genkey, numbits_int);
 	rsa_key_write(stdout, &genkey);
 
 	return 0;
