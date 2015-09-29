@@ -69,7 +69,7 @@ static int encrypt_mode(const char *key_filename, const char *message)
 	encode(m, message);
 
 	//Make sure message isn't too big
-	if(mpz_cmp(m, enc_key->n) > 0) {
+	if(mpz_cmp(m, (&enc_key)->n) > 0) {
 		printf("Error: m is too big\n");
 		return 1;
 	}
