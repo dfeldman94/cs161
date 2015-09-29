@@ -247,6 +247,7 @@ static void generate_prime(mpz_t p, unsigned int numbits)
  * interval [numbits - 1, numbits). Calls abort if any error occurs. */
 void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 {
+	//Init our mpz vars 
 	mpz_t p, q, n, pq, d, e;
 	mpz_init(pq);
 	mpz_init(d);
@@ -254,10 +255,14 @@ void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 	mpz_init(n);
 	mpz_init(p);
 	mpz_init(q);
-	generate_prime(p, numbits/2);
-	//gmp_printf("p: %Zd", p);
-	generate_prime(q, numbits/2);
-	//gmp_printf("q: %Zd", q);
+
+	//Generate two primes and make sure they are different
+	int cmp = 0
+	while(cmp == 0) {
+		generate_prime(p, numbits/2);
+		generate_prime(q, numbits/2);
+		cmp = mpz_cmp(p, q);
+	}
 
 	//Generate n as the product of p and q
 	mpz_mul(n, p, q);
