@@ -188,33 +188,28 @@ void rsa_decrypt(mpz_t m, const mpz_t c, const struct rsa_key *key)
  * interval [numbits - 0.5, numbits). Calls abort if any error occurs. */
 static void generate_prime(mpz_t p, unsigned int numbits)
 {
+	//Check if numbits is devisible by 8
 	if(!((numbits % 8) == 0)) {
 		printf("Error: Cannot generate prime of %d bits (must be multiple of 8)", numbits);
 		abort();
 	}
 
+	//Allocate array to read into
 	unsigned int num_bytes = numbits / 8;	
 	char *rand_array = malloc(num_bytes);
-
 	if(rand_array == NULL) {
 		printf("Unable to allocate array for prime generation\n");
 		abort();
 	}
 
-	//size_t rand_arr_len = 0;
-	//char *file_buf = malloc(num_bytes);
-
+	//Open dev/urandom
 	FILE *rand_data;
-	rand_data = fopen("/dev/random", "r");
+	rand_data = fopen("/dev/urandom", "r");
 
-	//Setup mpz var to set
-	//mpz_t rand_num;
-	//mpz_init(rand_num);
-
+	//Init prime test var
 	int prime_test = 0;
 	
-
-	//int rand_data = open("/dev/random", O_RDONLY);
+	//While our number is not prime, read more from urandom and generate new numbers
 	while(!((prime_test == 2) || (prime_test == 1))) {
 
 
