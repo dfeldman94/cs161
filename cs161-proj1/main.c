@@ -58,25 +58,34 @@ static char *decode(const mpz_t x, size_t *len)
  * was an error; zero otherwise. */
 static int encrypt_mode(const char *key_filename, const char *message)
 {
+	//Init RSA key
 	struct rsa_key enc_key;
-	//sec_key->d = NULL;
-	//sec_key->e = NULL;
-	//sec_key->n = NULL;
-	//sec_key = NULL;
 	rsa_key_init(&enc_key);
 	rsa_key_load_public(key_filename, &enc_key);
+
+	//Encode message m in an mpz var
 	mpz_t m;
 	mpz_init(m);
 	encode(m, message);
+
+	//Make sure message isn't too big
+	if(mpz_cmp(m, enc_key->n) > 0) {
+		printf("Error: m is too big\n");
+		return 1;
+	}
+
+	//Init ciphertext var
 	mpz_t c;
 	mpz_init(c);
+
+	//Encrypt and output
 	rsa_encrypt(c, m, &enc_key);
 	gmp_printf("%Zd", c);
+
+	//Clean up
 	rsa_key_clear(&enc_key);
 	mpz_clear(c);
 	mpz_clear(m);
-	/* TODO */
-	//fprintf(stderr, "encrypt not yet implemented\n");
 	return 0;
 }
 
@@ -93,23 +102,19 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
 	mpz_t c, m;
 	mpz_init(c);
 	mpz_init(m);
-	//encode(c, c_str);
+
 	mpz_set_str(c, c_str, 10);
-	//gmp_printf("c: %Zd\n", c);
+
 	rsa_decrypt(m, c, &dec_key);
 	size_t out_len = 0;
 	const char* output = decode(m, &out_len);
-	//char *output = malloc(out_len);
-	//strncpy(output, output_buf, out_len);
+
 	printf("%s", output);
-	//free(output);
+
 	rsa_key_clear(&dec_key);
 	mpz_clear(c);
 	mpz_clear(m);
 
-	//gmp_printf("Decoded message: %s", m);
-	/* TODO */
-	//fprintf(stderr, "decrypt not yet implemented\n");
 	return 1;
 }
 
@@ -120,7 +125,6 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
  * was an error; zero otherwise. */
 static int genkey_mode(const char *numbits_str)
 {
-	/* TODO */
 	struct rsa_key genkey;
 	rsa_key_init(&genkey);
 
@@ -133,19 +137,6 @@ static int genkey_mode(const char *numbits_str)
 }
 
 int main(int argc, char *argv[]) {
-	/*mpz_t a, b, c;
-	mpz_init(a);
-	mpz_init(b);
-	mpz_init(c);
-	mpz_set_str(a, "112233445566778899", 10);
-	mpz_set_str(b, "998877665544332211", 10);
-	c = a * b 
-	mpz_mul(c, a, b);
-	gmp_printf("%Zd = %Zd * %Zd\n", c, a, b);
-	mpz_clear(a);
-	mpz_clear(b);
-	mpz_clear(c);
-	*/
 	const char *command;
 
 	if (argc < 2) {
