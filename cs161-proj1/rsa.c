@@ -211,20 +211,21 @@ static void generate_prime(mpz_t p, unsigned int numbits)
 	
 	//While our number is not prime, read more from urandom and generate new numbers
 	while(!((prime_test == 2) || (prime_test == 1))) {
-
-
+		//Read from dev/urandom
 		size_t result = fread(rand_array, 1, num_bytes, rand_data);
 
+		//Check if read was successfull
 		if((int) result != (int) num_bytes) {
 			printf("Error: Could not read %d bits from dev/random", num_bytes);
-			printf("Result: %d, Numbits: %d",(int) result, numbits);
 			abort();
 		}
 
+		//Flip to the top two bits
 		*(rand_array) = *(rand_array) | 0xc0;
 
 		//Copy to mpz var
 		mpz_import(p, num_bytes, 1, sizeof(*(rand_array)), 0, 0, rand_array);
+		
 		//Test for primality
 		prime_test = mpz_probab_prime_p(p, 25);
 	}
@@ -232,15 +233,7 @@ static void generate_prime(mpz_t p, unsigned int numbits)
 	//Prime found, clean up
 	free(rand_array);
 	fclose(rand_data);
-	//mpz_clear(rand_num)
 
-
-
-	//*(rand_data) = *(rand_data) | 0xc0;
-
-
-
-	/* TODO */
 }
 
 /* Generate an RSA key. The base-2 logarithm of the modulus n will lie in the
@@ -267,25 +260,27 @@ void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 	//Generate n as the product of p and q
 	mpz_mul(n, p, q);
 
+	//Generate (p-1)(q-1)
 	mpz_sub_ui(p, p, 1);
 	mpz_sub_ui(q, q, 1);
 	mpz_mul(pq, p, q);
 
+	//Set e to be 65537
 	mpz_set_ui(e, 65537);
+
+	//Find d = e^-1 mod (p-1)(q-1)
 	mpz_invert(d, e, pq);
 
+	//Set our key vars
 	mpz_set(key->d, d);
 	mpz_set(key->e, e);
 	mpz_set(key->n, n);
 
+	//Cleanup
 	mpz_clear(d);
 	mpz_clear(e);
 	mpz_clear(n);
 	mpz_clear(p);
 	mpz_clear(q);
 	mpz_clear(pq);
-	//MAKE SURE NOT THE SAME??
-
-
-	/* TODO */
 }

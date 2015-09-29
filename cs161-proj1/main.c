@@ -96,21 +96,26 @@ static int encrypt_mode(const char *key_filename, const char *message)
  * was an error; zero otherwise. */
 static int decrypt_mode(const char *key_filename, const char *c_str)
 {
+	//Init RSA key
 	struct rsa_key dec_key;
 	rsa_key_init(&dec_key);
 	rsa_key_load_private(key_filename, &dec_key);
+
+	//Init mpz vars for cipher text and plain text
 	mpz_t c, m;
 	mpz_init(c);
 	mpz_init(m);
 
+	//Set char input to mpz variable
 	mpz_set_str(c, c_str, 10);
 
+	//Decrypt and decode integer to characters, then output
 	rsa_decrypt(m, c, &dec_key);
 	size_t out_len = 0;
 	const char* output = decode(m, &out_len);
-
 	printf("%s", output);
 
+	//Cleanup
 	rsa_key_clear(&dec_key);
 	mpz_clear(c);
 	mpz_clear(m);
