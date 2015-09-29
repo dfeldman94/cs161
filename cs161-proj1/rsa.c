@@ -211,7 +211,7 @@ static void generate_prime(mpz_t p, unsigned int numbits)
 	//mpz_t rand_num;
 	//mpz_init(rand_num);
 
-	int prime_test = 1;
+	int prime_test = 0;
 	
 
 	//int rand_data = open("/dev/random", O_RDONLY);
@@ -252,22 +252,27 @@ static void generate_prime(mpz_t p, unsigned int numbits)
  * interval [numbits - 1, numbits). Calls abort if any error occurs. */
 void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 {
-	mpz_t p, q, n, d, e;
+	mpz_t p, q, n, pq, d, e;
+	mpz_init(pq);
 	mpz_init(d);
 	mpz_init(e);
 	mpz_init(n);
 	mpz_init(p);
 	mpz_init(q);
 	generate_prime(p, numbits/2);
+	//gmp_printf("p: %Zd", p);
 	generate_prime(q, numbits/2);
+	//gmp_printf("q: %Zd", q);
 
-	//Generate n as the product of p-1 and q-1
-	mpz_sub_ui(p, p, 1);
-	mpz_sub_ui(q, q, 1);
+	//Generate n as the product of p and q
 	mpz_mul(n, p, q);
 
+	mpz_sub_ui(p, p, 1);
+	mpz_sub_ui(q, q, 1);
+	mpz_mul(pq, p, q);
+
 	mpz_set_ui(e, 65537);
-	mpz_invert(d, e, n);
+	mpz_invert(d, e, pq);
 
 	mpz_set(key->d, d);
 	mpz_set(key->e, e);
@@ -278,6 +283,7 @@ void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 	mpz_clear(n);
 	mpz_clear(p);
 	mpz_clear(q);
+	mpz_clear(pq);
 	//MAKE SURE NOT THE SAME??
 
 
