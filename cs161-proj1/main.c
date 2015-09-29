@@ -61,7 +61,11 @@ static int encrypt_mode(const char *key_filename, const char *message)
 	//Init RSA key
 	struct rsa_key enc_key;
 	rsa_key_init(&enc_key);
-	rsa_key_load_public(key_filename, &enc_key);
+	int ret = rsa_key_load_public(key_filename, &enc_key);
+	if(ret != 0) {
+		printf("Error: could not load key from %s\n", key_filename);
+		return 1;
+	}
 
 	//Encode message m in an mpz var
 	mpz_t m;
@@ -99,7 +103,11 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
 	//Init RSA key
 	struct rsa_key dec_key;
 	rsa_key_init(&dec_key);
-	rsa_key_load_private(key_filename, &dec_key);
+	int ret = rsa_key_load_private(key_filename, &dec_key);
+	if(ret != 0) {
+		printf("Error: could not load key from %s\n", key_filename);
+		return 1;
+	}
 
 	//Init mpz vars for cipher text and plain text
 	mpz_t c, m;
