@@ -257,7 +257,7 @@ void rsa_genkey(struct rsa_key *key, unsigned int numbits)
 	mpz_init(q);
 
 	//Generate two primes and make sure they are different
-	int cmp = 0
+	int cmp = 0;
 	while(cmp == 0) {
 		generate_prime(p, numbits/2);
 		generate_prime(q, numbits/2);
