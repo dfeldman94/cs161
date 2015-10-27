@@ -1,9 +1,0 @@
-Dylan Feldman
-cs161-ef
-
-Kevin Kim
-cs161-az
-
-1. When trying to encrypt a very long message, the message is reduced modulo n; because x^y mod p is equivalent to (x mod p) ^ y mod p, encrypting a message longer than n bits results in actually encrypting that message mod n (and the original message will not be recovered, but only the message mod n). Cryptosystems using RSA probably either use a cyptographic hash function and transmit the encrypted hash function output, or break the message into chunks before encrypting.
-
-2. The encrypted text is exactly the same in both cases. With a finite field of messages, such as "0", or "1", an attacker could record all messages heard and recognize the different encryptions for each item in the finite field. Then, the attacker can simply guess which encryption belongs to which message, and in the case of a message domain of "0" and "1", the attacker will be correct 50% of the time.
